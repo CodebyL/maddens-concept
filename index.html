@@ -119,6 +119,27 @@ section{padding:var(--s8) 0}
 .rv figcaption{font-family:var(--mono);font-size:.8rem;color:#9fb0c8}
 @media (max-width:860px){.rv{grid-template-columns:1fr}}
 
+/* rating dial */
+.rev-head{display:grid;grid-template-columns:1fr 230px;gap:var(--s6);align-items:center;margin-bottom:var(--s6)}
+.rev-head .h2row{margin-bottom:0}
+.dial{position:relative;width:230px;margin:0}
+.dial svg{width:100%;height:auto}
+.dial .face{fill:var(--steel)}
+.dial .bez{fill:none;stroke:#2b4570;stroke-width:10}
+.dial .bez2{fill:none;stroke:#5d7cab;stroke-width:1.5}
+.dial .tk{stroke:var(--navy);stroke-width:1.2}
+.dial .tk.b{stroke-width:2.6}
+.dial .lbl{fill:var(--navy);font:500 11px var(--mono)}
+.dial .arc{fill:none;stroke:var(--orange);stroke-width:5;stroke-dasharray:var(--len);stroke-dashoffset:var(--len)}
+.dial .ndl{transform-origin:110px 110px;transform:rotate(-135deg)}
+.dial.go .arc{stroke-dashoffset:calc(var(--len) * (1 - var(--frac)));transition:stroke-dashoffset 1.5s cubic-bezier(.2,.8,.2,1) .2s}
+.dial.go .ndl{transform:rotate(var(--rot));transition:transform 1.5s cubic-bezier(.3,1.2,.5,1) .2s}
+.dial .read{position:absolute;left:0;right:0;top:66%;text-align:center;color:var(--ink);line-height:1}
+.dial .read b{display:block;font:800 1.75rem/1 var(--head);font-stretch:112%}
+.dial .read span{display:block;font:500 .6rem var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--soft);margin-top:4px}
+@media (max-width:820px){.rev-head{grid-template-columns:1fr;gap:var(--s5)}.dial{justify-self:start;width:210px}}
+@media (prefers-reduced-motion:reduce){.dial .arc{stroke-dashoffset:calc(var(--len) * (1 - var(--frac)))}.dial .ndl{transform:rotate(var(--rot))}}
+
 /* photo estimate add-on */
 .est-grid{display:grid;grid-template-columns:.8fr 1.2fr;gap:var(--s6);align-items:start}
 .flag{display:inline-block;background:var(--orange);color:#111;font-family:var(--mono);font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;padding:5px 10px;border-radius:3px;margin-bottom:var(--s3)}
@@ -263,9 +284,15 @@ footer a{color:#fff}
 
 <section class="reviews">
  <div class="wrap">
-  <div class="h2row">
+  <div class="rev-head">
+   <div class="h2row">
    <div><p class="tag">Google reviews</p><h2>4.7 stars from 104 drivers.</h2></div>
    <p>A few recent words from customers, as written on Madden's Google listing.</p>
+   </div>
+   <figure class="dial" id="dial" role="img" aria-label="Google rating gauge: 4.7 out of 5 from 104 reviews">
+    <svg viewBox="0 0 220 220" aria-hidden="true" focusable="false"></svg>
+    <figcaption class="read" aria-hidden="true"><b>4.7</b><span>of 5 on Google</span></figcaption>
+   </figure>
   </div>
   <div class="rv">
    <figure><blockquote>&ldquo;...the work came out amazing. The car looks brand new.&rdquo;</blockquote><figcaption>Jonathan C. &middot; fender and door replaced, repainted</figcaption></figure>
@@ -350,6 +377,15 @@ var d=document,$=function(s){return d.querySelector(s)},$$=function(s,r){return 
 var mb=$(".menu-btn"),nav=$("#nav");
 mb.addEventListener("click",function(){var o=nav.classList.toggle("open");mb.setAttribute("aria-expanded",o);mb.textContent=o?"Close":"Menu";});
 $$("#nav a").forEach(function(a){a.addEventListener("click",function(){nav.classList.remove("open");mb.setAttribute("aria-expanded",false);mb.textContent="Menu";});});
+var dial=$("#dial");if(dial){(function(){var g=dial.querySelector("svg"),NS="http://www.w3.org/2000/svg",V=4.7,c=110;
+function pt(a,r){var t=a*Math.PI/180;return[(c+r*Math.sin(t)).toFixed(2),(c-r*Math.cos(t)).toFixed(2)];}
+function el(n,a,p){var e=d.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);(p||g).appendChild(e);return e;}
+el("circle",{cx:c,cy:c,r:100,"class":"face"});el("circle",{cx:c,cy:c,r:104,"class":"bez"});el("circle",{cx:c,cy:c,r:96,"class":"bez2"});
+var R=88,a0=pt(-135,R),a1=pt(135,R),arc=el("path",{d:"M"+a0+" A"+R+" "+R+" 0 1 1 "+a1,"class":"arc"});arc.style.setProperty("--len",(1.5*Math.PI*R).toFixed(1));arc.style.setProperty("--frac",V/5);
+for(var i=0;i<=25;i++){var a=-135+i*10.8,b=i%5===0,q=pt(a,82),w=pt(a,b?70:76);el("line",{x1:q[0],y1:q[1],x2:w[0],y2:w[1],"class":"tk"+(b?" b":"")});if(b){var tp=pt(a,60),t=el("text",{x:tp[0],y:+tp[1]+4,"text-anchor":"middle","class":"lbl"});t.textContent=i/5;}}
+var n=el("g",{"class":"ndl"});el("path",{d:"M108.4 132 L110 26 L111.6 132 Z",fill:"#0f1f38"},n);el("path",{d:"M109 40 L110 26 L111 40 Z",fill:"#f26a1b"},n);el("circle",{cx:c,cy:c,r:7,fill:"#0f1f38"},n);el("circle",{cx:c,cy:c,r:2.5,fill:"#f26a1b"},n);
+n.style.setProperty("--rot",(-135+V/5*270)+"deg");
+if("IntersectionObserver" in window){var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){dial.classList.add("go");io.disconnect();}});},{threshold:.5});io.observe(dial);}else dial.classList.add("go");})();}
 var picked=[],zin=$("#r-zones");
 function sync(){$("#zoneCount").textContent=picked.length+" SELECTED";$("#picked").textContent=picked.length?"Selected: "+picked.join(", "):"Tap where the car was hit. It carries into the estimate form below.";zin.value=picked.join(", ");}
 $$(".zone").forEach(function(z){function t(){var n=z.getAttribute("data-z"),on=z.getAttribute("aria-pressed")!=="true";z.setAttribute("aria-pressed",on);if(on)picked.push(n);else picked=picked.filter(function(x){return x!==n});sync();}
